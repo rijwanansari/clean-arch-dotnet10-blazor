@@ -1,0 +1,40 @@
+using CleanArchitecture.Application.Common;
+using CleanArchitecture.Application.DTOs.Products;
+using CleanArchitecture.Domain.Repositories;
+using MediatR;
+
+namespace CleanArchitecture.Application.Products.Queries.GetProductById;
+
+public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Result<ProductDto?>>
+{
+    private readonly IProductRepository _productRepository;
+
+    public GetProductByIdQueryHandler(IProductRepository productRepository)
+    {
+        _productRepository = productRepository;
+    }
+
+    public async Task<Result<ProductDto?>> Handle(GetProductByIdQuery request, 
+        CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (product is null)
+        {
+            return Result<ProductDto?>.Failure($"Product with ID {request.Id} was not found");
+        }
+
+        var productDto = new ProductDto(
+            product.Id,
+            product.Name,
+            product.Description,
+            product.Price.Amount,
+            product.Price.Currency,
+            product.StockQuantity,
+            product.Category,
+            product.IsActive,
+            product.CreatedAt
+        );
+
+        return Result<ProductDto?>.Success(productDto);
+    }
+}
