@@ -14,7 +14,8 @@ public class CacheService : ICacheService
         {
             if (entry.ExpiresAt == null || entry.ExpiresAt > DateTime.UtcNow)
             {
-                return Task.FromResult(JsonSerializer.Deserialize<T>(entry.Value));
+                var result = JsonSerializer.Deserialize<T>(entry.Value);
+                return Task.FromResult(result);
             }
             _cache.TryRemove(key, out _);
         }

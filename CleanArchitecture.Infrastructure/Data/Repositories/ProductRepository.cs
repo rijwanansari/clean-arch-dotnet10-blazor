@@ -96,11 +96,12 @@ public class ProductRepository : IProductRepository
         if (pageSize <= 0)
             throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than 0.");
 
-        var normalized = searchTerm.Trim().ToLowerInvariant();
+        var normalized = searchTerm.Trim();
+        // Use case-insensitive LIKE pattern matching that can utilize database indexes
         var query = _context.Products.Where(p => p.IsActive &&
-            (EF.Functions.Like(p.Name.ToLower(), "%" + normalized + "%") ||
-             EF.Functions.Like(p.Description.ToLower(), "%" + normalized + "%") ||
-             EF.Functions.Like(p.Category.ToLower(), "%" + normalized + "%")));
+            (EF.Functions.Like(p.Name, $"%{normalized}%") ||
+             EF.Functions.Like(p.Description, $"%{normalized}%") ||
+             EF.Functions.Like(p.Category, $"%{normalized}%")));
 
         var totalCount = await query.CountAsync(cancellationToken);
 

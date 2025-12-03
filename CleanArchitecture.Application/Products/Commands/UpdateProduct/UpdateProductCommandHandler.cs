@@ -1,5 +1,6 @@
 using CleanArchitecture.Application.Abstractions.Data;
 using CleanArchitecture.Application.Common;
+using CleanArchitecture.Domain.Exceptions;
 using CleanArchitecture.Domain.Repositories;
 using CleanArchitecture.Domain.ValueObjects;
 using MediatR;
@@ -35,9 +36,13 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
 
             return Result<bool>.Success(true);
         }
-        catch (Exception)
+        catch (DomainException ex)
         {
-            return Result<bool>.Failure("Failed to update product");
+            return Result<bool>.Failure(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<bool>.Failure($"Invalid input: {ex.Message}");
         }
     }
 }
