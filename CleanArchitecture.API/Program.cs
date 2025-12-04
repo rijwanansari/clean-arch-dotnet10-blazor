@@ -2,6 +2,8 @@ using CleanArchitecture.Application;
 using CleanArchitecture.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
+using CleanArchitecture.Infrastructure.Data.DataContext;
+using CleanArchitecture.Infrastructure.Data.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +44,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Seed initial data
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await DataSeeder.SeedAsync(db);
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
